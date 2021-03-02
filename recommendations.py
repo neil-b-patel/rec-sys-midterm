@@ -34,7 +34,7 @@ def from_file_to_dict(path, datafile, itemfile):
     # Get movie titles, place into movies dictionary indexed by itemID
     movies = {}
     try:
-        with open(path + '/' + itemfile) as myfile:
+        with open(path + '/' + itemfile, encoding='iso8859') as myfile:
             # this encoding is required for some datasets: encoding='iso8859'
             for line in myfile:
                 (id, title) = line.split('|')[0:2]
@@ -267,14 +267,6 @@ def sim_distance(prefs, person1, person2):
     # Add up the squares of all the differences
     sum_of_squares = sum([pow(prefs[person1][item]-prefs[person2][item], 2)
                           for item in prefs[person1] if item in prefs[person2]])
-
-    sum_of_squares = 0
-    for item in prefs[person1]:
-        if item in prefs[person2]:
-            # print(item, prefs[person1][item], prefs[person2][item])
-            sq = pow(prefs[person1][item]-prefs[person2][item], 2)
-            # print (sq)
-            sum_of_squares += sq
 
     return 1/(1+sqrt(sum_of_squares))
 
