@@ -710,22 +710,24 @@ def main():
     done = False
     prefs = {}
     itemsim = {}
+    usersim = {}
 
     while not done:
         print()
         # Start a simple dialog
-        file_io = input('R(ead) critics data from file?, '
-                        'RML(ead ml100K data)?, '
-                        'P(rint) the U-I matrix?, '
-                        'V(alidate) the dictionary?, '
-                        'S(tats) print?, '
-                        'D(istance) critics data?, '
-                        'PC(earson Correlation) critics data? '
-                        'U(ser-based CF Recommendations)? '
-                        'LCV(eave one out cross-validation)? '
-                        'LCVSIM(eave one out cross-validation)?'
-                        'Sim(ilarity matrix) calc? '
-                        'I(tem-based CF Recommendations)? ')
+        file_io = input('R(ead) critics data from file?, \n'
+                        'RML(ead ml100K data)?, \n'
+                        'P(rint) the U-I matrix?, \n'
+                        'V(alidate) the dictionary?, \n'
+                        'S(tats) print?, \n'
+                        'D(istance) critics data?, \n'
+                        'PC(earson Correlation) critics data? \n'
+                        'U(ser-based CF Recommendations)? \n'
+                        'LCV(eave one out cross-validation)? \n'
+                        'LCVSIM(eave one out cross-validation)? \n'
+                        'Sim(ilarity matrix) calc? \n'
+                        'Simu(user-user sim matrix)? \n'
+                        'I(tem-based CF Recommendations)? \n')
 
         if file_io == 'R' or file_io == 'r':
             # read in u-i matrix data
@@ -943,7 +945,7 @@ def main():
                     print('Similarity matrix based on %s, len = %d'
                           % (sim_method, len(itemsim)))
                     print()
-``
+
                     for item in itemsim:
                         print('{} : {}'.format(item, itemsim[item]))
 
@@ -955,6 +957,67 @@ def main():
                     # Lady in the Water is most similar to Snake on a Plane (0.76)
                     # Superman Returns is least similar to Snakes on a Plane (0.11)
                     # Lady in the Water is the most inversely similar to Just My Luck (-0.94)
+
+            else:
+                print('Empty dictionary, R(ead) in some data!')
+            
+        elif file_io == 'Simu' or file_io == 'simu':
+            print()
+            if len(prefs) > 0:
+                ready = False  # subc command in progress
+                sub_cmd = input(
+                    'RD(ead) distance or RP(ead) pearson or WD(rite) distance or WP(rite) pearson? ')
+                try:
+                    if sub_cmd == 'RD' or sub_cmd == 'rd':
+                        # Load the dictionary back from the pickle file.
+                        usersim = pickle.load(
+                            open("save_usersim_distance.p", "rb"))
+                        sim_method = 'sim_distance'
+
+                    elif sub_cmd == 'RP' or sub_cmd == 'rp':
+                        # Load the dictionary back from the pickle file.
+                        usersim = pickle.load(
+                            open("save_usersim_pearson.p", "rb"))
+                        sim_method = 'sim_pearson'
+
+                    elif sub_cmd == 'WD' or sub_cmd == 'wd':
+                        # transpose the U-I matrix and calc user-user similarities matrix
+                        usersim = calculateSimilarUsers(
+                            prefs, similarity=sim_distance)
+                        # Dump/save dictionary to a pickle file
+                        pickle.dump(usersim, open(
+                            "save_usersim_distance.p", "wb"))
+                        sim_method = 'sim_distance'
+
+                    elif sub_cmd == 'WP' or sub_cmd == 'wp':
+                        # transpose the U-I matrix and calc user-user similarities matrix
+                        usersim = calculateSimilarUsers(
+                            prefs, similarity=sim_pearson)
+                        # Dump/save dictionary to a pickle file
+                        pickle.dump(usersim, open(
+                            "save_usersim_pearson.p", "wb"))
+                        sim_method = 'sim_pearson'
+
+                    else:
+                        print("Sim sub-command %s is invalid, try again" % sub_cmd)
+                        continue
+
+                    ready = True  # sub command completed successfully
+
+                except Exception as ex:
+                    print('Error!!', ex, '\nNeed to W(rite) a file before you can R(ead) it!'
+                          ' Enter Simu(ilarity matrix) again and choose a Write command')
+                    print()
+
+                if len(usersim) > 0 and ready == True and len(usersim) <= 10:
+                    # Only want to print if sub command completed successfully
+                    print('Similarity matrix based on %s, len = %d'
+                          % (sim_method, len(usersim)))
+                    print()
+
+                    for item in usersim:
+                        print('{} : {}'.format(item, usersim[item]))
+
 
             else:
                 print('Empty dictionary, R(ead) in some data!')
