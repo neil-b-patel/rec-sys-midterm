@@ -546,6 +546,37 @@ def calculateSimilarItems(prefs, similarity=sim_pearson, n=10):
     return result
 
 
+def calculateSimilarUsers(prefs,n=100,similarity=sim_pearson):
+
+    '''
+        Creates a dictionary of items showing which other items they are most 
+        similar to. 
+
+        Parameters:
+        -- prefs: dictionary containing user-item matrix
+        -- n: number of similar matches for topMatches() to return
+        -- similarity: function to calc similarity (sim_pearson is default)
+        
+        Returns:
+        -- A dictionary with a similarity matrix
+        
+    '''     
+    result={}
+    c=0
+    for user in prefs:
+      # Status updates for larger datasets
+        c+=1
+        if c%100==0:
+            percent_complete = (100*c)/len(prefs)
+            print(str(percent_complete)+"% complete")
+        
+        # Find the most similar items to this one
+        scores=topMatches(prefs,user,similarity,n=n)
+        result[user]=scores
+    return result
+
+
+
 def getRecommendedItems(prefs, itemMatch, user):
     '''
         Calculates recommendations for a given user 
