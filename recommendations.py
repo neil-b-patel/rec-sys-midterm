@@ -81,6 +81,7 @@ def data_stats(prefs, filename):
         -- None
 
     '''
+
     items = []
     num_users = len(prefs)
     ratings = []
@@ -167,6 +168,7 @@ def popular_items(prefs, filename):
         -- None
 
     '''
+
     ratings = {}
     most_rated = {}
     highest_rated = {}
@@ -372,6 +374,52 @@ def getRecommendations(prefs, person, similarity=sim_pearson):
     return rankings
 
 
+def getRecommendationSim(prefs, userMatch, user):
+    '''
+        Returns user-based recommendations
+
+        Parameters:
+        -- prefs: dictionary containing user-item matrix
+        -- userMatch: dictionary containing similarity matrix
+        -- user: string containing name of user
+
+        Returns:
+        -- A list of recommended items with 0 or more tuples,
+           each tuple contains (predicted rating, item name).
+           List is sorted, high to low, by predicted rating.
+           An empty list is returned when no recommendations have been calc'd.
+
+        #TODO
+        -check accuracy
+
+    '''
+
+    toRec = set()  # set of items to recommend
+    recs = []
+
+    for other in userMatch[user]:  # other is a tuple (sim, user)
+        for item in prefs[other[1]]:
+            if item not in prefs[user] or prefs[user][item] == 0:  # unrated
+                toRec.add(item)
+
+    for item in toRec:
+        numerator, denominator = 0, 0
+        for other in userMatch[user]:
+            if item in prefs[other[1]]:  # Other has rated item
+                numerator += prefs[other[1]][item] * other[0]
+                denominator += other[0]
+        if denominator != 0:
+            recValue = numerator / denominator
+            recs.append((recValue, item))
+
+        toRec = set()
+
+    # Sort the list of tuples by highest to lowest ratings
+    recs = sorted(recs, key=lambda x: x[0], reverse=True)
+
+    return recs
+
+
 def calc_all_users(prefs, method=sim_distance):
     '''
         Prints selected calculation for all users
@@ -386,6 +434,7 @@ def calc_all_users(prefs, method=sim_distance):
         -- None
 
     '''
+
     if method == getRecommendations:
         for user in prefs:
             print('Recommendations for {}:'.format(user))
@@ -409,7 +458,7 @@ def calc_all_users(prefs, method=sim_distance):
 
 
 def loo_cv(prefs, metric, sim, algo):
-    """
+    '''
         Leave_One_Out Evaluation: evaluates recommender system ACCURACY
 
         Parameters:
@@ -422,7 +471,8 @@ def loo_cv(prefs, metric, sim, algo):
         -- error: MSE, MAE, RMSE totals for this set of conditions
         -- error_list: list of actual-predicted differences
 
-    """
+    '''
+
     error = 0
     error_list = []
     pred_found = False
@@ -446,11 +496,12 @@ def loo_cv(prefs, metric, sim, algo):
                     else:
                         error_i = (predicted_rating - removed_rating)**2
                     error_list.append(error_i)
-                    print('User : {}, Item: {}, Prediction {}, Actual: {}, Error: {}'.format(
-                        user, item, predicted_rating, removed_rating, error_i))
+                    # print('User : {}, Item: {}, Prediction {}, Actual: {}, Error: {}'.format(
+                    #     user, item, predicted_rating, removed_rating, error_i))
             if pred_found == False:
-                print('From loo_cv(), No prediction calculated for item {}, user {} in pred_list: {}'.format(
-                    item, user, recs))
+                # print('From loo_cv(), No prediction calculated for item {}, user {} in pred_list: {}'.format(
+                #     item, user, recs))
+                pass
             pred_found = False
             prefs_cp[user][item] = removed_rating
 
@@ -479,6 +530,7 @@ def topMatches(prefs, person, similarity=sim_pearson, n=5):
            An empty list is returned when no matches have been calc'd.
 
     '''
+
     scores = [(similarity(prefs, person, other), other)
               for other in prefs if other != person]
     scores.sort()
@@ -498,6 +550,7 @@ def transformPrefs(prefs):
            this function returns an I-U matrix
 
     '''
+
     result = {}
     for person in prefs:
         for item in prefs[person]:
@@ -521,15 +574,19 @@ def calculateSimilarItems(prefs, n=100, similarity=sim_pearson):
         -- A dictionary with a similarity matrix
 
     '''
+
     result = {}
+    c = 0
+
     # Invert the preference matrix to be item-centric
     itemPrefs = transformPrefs(prefs)
-    c = 0
+
     for item in itemPrefs:
       # Status updates for larger datasets
         c += 1
         if c % 100 == 0:
-            print("%d / %d" % (c, len(itemPrefs)))
+            percent_complete = (100*c)/len(itemPrefs)
+            print(str(percent_complete)+"% complete")
 
         # Find the most similar items to this one
         scores = topMatches(itemPrefs, item, similarity, n=n)
@@ -551,8 +608,10 @@ def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson):
         -- A dictionary with a similarity matrix
 
     '''
+
     result = {}
     c = 0
+
     for user in prefs:
       # Status updates for larger datasets
         c += 1
@@ -563,6 +622,7 @@ def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson):
         # Find the most similar items to this one
         scores = topMatches(prefs, user, similarity, n=n)
         result[user] = scores
+
     return result
 
 
@@ -582,6 +642,7 @@ def getRecommendedItems(prefs, itemMatch, user):
            An empty list is returned when no recommendations have been calc'd.
 
     '''
+
     userRatings = prefs[user]
     scores = {}
     totalSim = {}
@@ -629,6 +690,7 @@ def get_all_II_recs(prefs, itemsim, sim_method, num_users=10, top_N=5):
         -- None
 
     '''
+
     counter = 0
 
     if num_users > 0:
@@ -646,31 +708,42 @@ def get_all_II_recs(prefs, itemsim, sim_method, num_users=10, top_N=5):
     return
 
 
-def loo_cv_sim(prefs, metric, sim, algo, sim_matrix):
-    """
+def loo_cv_sim(prefs, sim, algo, sim_matrix):
+    '''
     Leave-One_Out Evaluation: evaluates recommender system ACCURACY
 
      Parameters:
-         prefs dataset: critics, etc.
-         metric: MSE, or MAE, or RMSE
-         sim: distance, pearson, etc.
-         algo: user-based recommender, item-based recommender, etc.
-         sim_matrix: pre-computed similarity matrix
+         -- prefs dataset: critics, MLK-100k
+         -- sim: distance, pearson
+         -- algo: user-based (getRecommendationSim), item-based recommender (getRecommendedItems)
+         -- sim_matrix: pre-computed similarity matrix
 
     Returns:
-         error_total: MSE, or MAE, or RMSE totals for this set of conditions
-         error_list: list of actual-predicted differences
+         -- errors: MSE, MAE, RMSE totals for this set of conditions
+         -- error_lists: MSE and MAE lists of actual-predicted differences
 
-    """
-    error = 0
-    error_list = []
+    '''
+
+    errors = {}
+    error_lists = {}
+    mse_list = []
+    mae_list = []
+    
     pred_found = False
     recs = []
+
+    c = 0
 
     # Create a temp copy of prefs
     prefs_cp = copy.deepcopy(prefs)
 
     for user in prefs:
+        # Progress status
+        c += 1
+        if c % 25 == 0:
+            percent_complete = (100*c)/len(prefs)
+            print("%.2f %% complete" % percent_complete)
+
         for item in prefs[user]:
             removed_rating = prefs_cp[user].pop(item)
             recs = algo(prefs_cp, sim_matrix, user)
@@ -678,26 +751,27 @@ def loo_cv_sim(prefs, metric, sim, algo, sim_matrix):
                 if item in rec:
                     pred_found = True
                     predicted_rating = rec[0]
-                    error_i = 0
-                    if metric == "MAE" or metric == "mae":
-                        error_i = abs(predicted_rating - removed_rating)
-                    else:
-                        error_i = (predicted_rating - removed_rating)**2
-                    error_list.append(error_i)
-                    print('User : {}, Item: {}, Prediction {}, Actual: {}, Error: {}'.format(
-                        user, item, predicted_rating, removed_rating, error_i))
+                    error_mse = (predicted_rating - removed_rating)**2
+                    error_mae = abs(predicted_rating - removed_rating)
+                    mse_list.append(error_mse)
+                    mae_list.append(error_mae)
+                    # print('User : {}, Item: {}, Prediction {}, Actual: {}, Error: {}, Absolute Error: {}'.format(
+                        # user, item, predicted_rating, removed_rating, error_mse, error_mae))
             if pred_found == False:
-                print('From loo_cv(), No prediction calculated for item {}, user {} in pred_list: {}'.format(
-                    item, user, recs))
+                # print('From loo_cv(), No prediction calculated for item {}, user {} in pred_list: {}'.format(
+                    # item, user, recs))
+                pass
             pred_found = False
             prefs_cp[user][item] = removed_rating
 
-    if metric == "RMSE" or metric == "rmse":
-        error = sqrt(np.average(error_list))
-    else:
-        error = np.average(error_list)
+    errors['mse'] = np.average(mse_list)
+    errors['mae'] = np.average(mae_list)
+    errors['rmse'] = sqrt(np.average(mse_list))
 
-    return error, error_list
+    error_lists['(r)mse'] = error_mse
+    error_lists['mae'] = error_mae
+
+    return errors, error_lists
 
 
 def main():
@@ -732,24 +806,25 @@ def main():
         if file_io == 'R' or file_io == 'r':
             # read in u-i matrix data
             print()
-            file_dir='data/'
-            datafile='critics_ratings.data'
-            itemfile='critics_movies.item'
+            file_dir = 'data/'
+            datafile = 'critics_ratings.data'
+            itemfile = 'critics_movies.item'
             print('Reading "%s" dictionary from file' % datafile)
-            prefs=from_file_to_dict(
+            prefs = from_file_to_dict(
                 path, file_dir+datafile, file_dir+itemfile)
             print('Number of users: %d\nList of users:' % len(prefs),
                   list(prefs.keys()))
 
         elif file_io == 'RML' or file_io == 'rml':
             print()
-            file_dir = 'data/ml-100k/' # path from current directory
+            file_dir = 'data/ml-100k/'  # path from current directory
             datafile = 'u.data'  # ratings file
-            itemfile = 'u.item'  # movie titles file            
-            print ('Reading "%s" dictionary from file' % datafile)
-            prefs = from_file_to_dict(path, file_dir+datafile, file_dir+itemfile)
-            print('Number of users: %d\nList of users [0:10]:' 
-                  % len(prefs), list(prefs.keys())[0:10] )
+            itemfile = 'u.item'  # movie titles file
+            print('Reading "%s" dictionary from file' % datafile)
+            prefs = from_file_to_dict(
+                path, file_dir+datafile, file_dir+itemfile)
+            print('Number of users: %d\nList of users [0:10]:'
+                  % len(prefs), list(prefs.keys())[0:10])
 
         elif file_io == 'P' or file_io == 'p':
             # print the u-i matrix
@@ -853,39 +928,42 @@ def main():
 
         elif file_io == 'LCVSIM' or file_io == 'lcvsim':
             print()
-            if len(prefs) > 0 and itemsim != {}:
+
+            sim_matrix = {}
+            algo = input('Enter algorithm: U(ser-based) or I(tem-based)')
+            if algo == 'I' or algo == 'i':
+                algo = getRecommendedItems
+                sim_matrix = itemsim
+            else:
+                algo = getRecommendationSim
+                sim_matrix = usersim
+
+            if len(prefs) > 0 and sim_matrix != {}:
                 print('LOO_CV_SIM Evaluation')
-                
+
                 # check for small or large dataset (for print statements)
                 if len(prefs) <= 7:
                     prefs_name = 'critics'
                 else:
                     prefs_name = 'MLK-100k'
 
-                algo = input('Enter algorithm: U(ser-based) or I(tem-based)')
-                if algo == 'I' or algo =='i':
-                    algo = getRecommendedItems
-                else:
-                    algo = getRecommendationsSim
-
-
                 if sim_method == 'sim_pearson':
                     sim = sim_pearson
-                    error_total, error_list = loo_cv_sim(
-                        prefs, sim, algo, itemsim)
-                    print('%s for %s: %.5f, len(SE list): %d, using %s'
-                          % (prefs_name, error_total, len(error_list), sim))
+                    errors, error_lists = loo_cv_sim(
+                        prefs, sim, algo, sim_matrix)
+                    print('Errors for %s: MSE = %.5f, MAE = %.5f, RMSE = %.5f, len(SE list): %d, using %s'
+                          % (prefs_name, errors['mse'], errors['mae'], errors['rmse'], len(error_lists['(r)mse']), sim_method))
                     print()
                 elif sim_method == 'sim_distance':
                     sim = sim_distance
-                    error_total, error_list = loo_cv_sim(
-                        prefs, sim, algo, itemsim)
-                    print('%s for %s: %.5f, len(SE list): %d, using %s'
-                          % (prefs_name, error_total, len(error_list), sim))
+                    errors, error_lists = loo_cv_sim(
+                        prefs, sim, algo, sim_matrix)
+                    print('Errors for %s: MSE = %.5f, MAE = %.5f, RMSE = %.5f, len(SE list): %d, using %s'
+                          % (prefs_name, errors['mse'], errors['mae'], errors['rmse'], len(error_lists['(r)mse']), sim_method))
                     print()
                 else:
                     print('Run Sim(ilarity matrix) command to create/load Sim matrix!')
-                
+
                 if prefs_name == 'critics':
                     print(error_list)
 
@@ -960,7 +1038,7 @@ def main():
 
             else:
                 print('Empty dictionary, R(ead) in some data!')
-            
+
         elif file_io == 'Simu' or file_io == 'simu':
             print()
             if len(prefs) > 0:
@@ -1017,7 +1095,6 @@ def main():
 
                     for item in usersim:
                         print('{} : {}'.format(item, usersim[item]))
-
 
             else:
                 print('Empty dictionary, R(ead) in some data!')
