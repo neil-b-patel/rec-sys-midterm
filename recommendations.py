@@ -596,7 +596,7 @@ def calculateSimilarItems(prefs, n=100, similarity=sim_pearson):
 
 def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson):
     '''
-        Creates a dictionary of items showing which other items they are most
+        Creates a dictionary of users showing which other users they are most
         similar to.
 
         Parameters:
