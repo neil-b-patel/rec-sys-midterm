@@ -1,0 +1,14 @@
+ITEM BASED, PEARSON
+----------
+
+Errors for MLK-100k: MSE = 1.05041, MAE = 0.77137, RMSE = 1.02490, len(SE list): 57795, using sim_pearson with sim_threshold >0.0 and sim_weighting of 57795/0
+Errors for MLK-100k: MSE = 1.03702, MAE = 0.76721, RMSE = 1.01834, len(SE list): 57496, using sim_pearson with sim_threshold >0.3 and sim_weighting of 57496/0
+Errors for MLK-100k: MSE = 1.02534, MAE = 0.76374, RMSE = 1.01259, len(SE list): 56030, using sim_pearson with sim_threshold >0.5 and sim_weighting of 56030/0
+
+Errors for MLK-100k: MSE = 0.64988, MAE = 0.63174, RMSE = 0.80615, len(SE list): 96612, using sim_pearson with sim_threshold >0.0 and sim_weighting of 96612/25
+Errors for MLK-100k: MSE = 0.67389, MAE = 0.64299, RMSE = 0.82091, len(SE list): 92439, using sim_pearson with sim_threshold >0.3 and sim_weighting of 92439/25
+Errors for MLK-100k: MSE = 0.71511, MAE = 0.65937, RMSE = 0.84564, len(SE list): 87868, using sim_pearson with sim_threshold >0.5 and sim_weighting of 87868/25
+
+Errors for MLK-100k: MSE = 0.64988, MAE = 0.63174, RMSE = 0.80615, len(SE list): 96612, using sim_pearson with sim_threshold >0.0 and sim_weighting of 96612/50
+Errors for MLK-100k: MSE = 0.73755, MAE = 0.66729, RMSE = 0.85881, len(SE list): 84850, using sim_pearson with sim_threshold >0.3 and sim_weighting of 84850/50
+Errors for MLK-100k: MSE = 0.80058, MAE = 0.68688, RMSE = 0.89475, len(SE list): 71571, using sim_pearson with sim_threshold >0.5 and sim_weighting of 71571/50
