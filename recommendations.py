@@ -276,8 +276,9 @@ def sim_distance(prefs, person1, person2, sim_weighting=0):
 
     # apply significance weighting, if any
     if sim_weighting != 0:
-        distance_sim *= (len(si) / sim_weighting)
-
+        if len(si) < sim_weighting:
+                distance_sim *= (len(si) / sim_weighting)
+    
     return distance_sim
 
 
@@ -336,7 +337,9 @@ def sim_pearson(prefs, p1, p2, sim_weighting=0):
 
         # apply significance weighting, if any
         if sim_weighting != 0:
-            sim_pearson *= (len(si) / sim_weighting)
+            if len(si) < sim_weighting:
+                sim_pearson *= (len(si) / sim_weighting)
+            
 
         return sim_pearson
     else:
