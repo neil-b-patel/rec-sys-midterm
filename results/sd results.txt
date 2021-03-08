@@ -1,0 +1,11 @@
+Errors for MLK-100k: MSE = 0.52403, MAE = 0.51490, RMSE = 0.72390, len(SE list): 49659, using sim_distance with sim_threshold >0.0 and sim_weighting of 49659/0
+Errors for MLK-100k: MSE = 0.35146, MAE = 0.41219, RMSE = 0.59284, len(SE list): 33774, using sim_distance with sim_threshold >0.3 and sim_weighting of 33774/0
+Errors for MLK-100k: MSE = 0.00000, MAE = 0.00000, RMSE = 0.00000, len(SE list): 8780, using sim_distance with sim_threshold >0.5 and sim_weighting of 8780/0
+
+Errors for MLK-100k: MSE = 0.78434, MAE = 0.68565, RMSE = 0.88563, len(SE list): 90645, using sim_distance with sim_threshold >0.0 and sim_weighting of 90645/25
+Errors for MLK-100k: MSE = 0.05063, MAE = 0.05063, RMSE = 0.22502, len(SE list): 158, using sim_distance with sim_threshold >0.3 and sim_weighting of 158/25
+Errors for MLK-100k: MSE = nan, MAE = nan, RMSE = nan, len(SE list): 0, using sim_distance with sim_threshold >0.5 and sim_weighting of 0/25
+
+Errors for MLK-100k: MSE = 0.82575, MAE = 0.71075, RMSE = 0.90871, len(SE list): 96742, using sim_distance with sim_threshold >0.0 and sim_weighting of 96742/50
+Errors for MLK-100k: MSE = 0.02041, MAE = 0.02041, RMSE = 0.14286, len(SE list): 98, using sim_distance with sim_threshold >0.3 and sim_weighting of 98/50
+Errors for MLK-100k: MSE = nan, MAE = nan, RMSE = nan, len(SE list): 0, using sim_distance with sim_threshold >0.5 and sim_weighting of 0/50
