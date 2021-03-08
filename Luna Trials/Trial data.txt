@@ -1,0 +1,45 @@
+Trial 1: Item/Distance/ No Sim Wtg/ >0 sim Threshold
+
+Errors for MLK-100k: MSE = 0.15883, MAE = 0.12488, RMSE = 0.39853, len(SE list): 24176, 
+using sim_distance with sim_threshold >0.0 and sim_weighting of 24176/0
+----------------------------------------------------------------------------------------
+Trial 2: Item/Distance/ No Sim Wtg/ 0.3 sim Threshold
+
+Errors for MLK-100k: MSE = 0.10747, MAE = 0.10908, RMSE = 0.32783, len(SE list): 24072, 
+using sim_distance with sim_threshold >0.3 and sim_weighting of 24072/0
+----------------------------------------------------------------------------------------
+Trial 3: Item/Distance/ No Sim Wtg/ 0.5 sim Threshold
+
+Errors for MLK-100k: MSE = 0.00000, MAE = 0.00000, RMSE = 0.00000, len(SE list): 21945, 
+using sim_distance with sim_threshold >0.5 and sim_weighting of 21945/0
+----------------------------------------------------------------------------------------
+Trial 4: Item/Distance/ n/25 Sim Wtg/ >0 sim Threshold
+
+Errors for MLK-100k: MSE = 0.72385, MAE = 0.65219, RMSE = 0.85080, len(SE list): 95981, 
+using sim_distance with sim_threshold >0.0 and sim_weighting of 95981/25
+
+----------------------------------------------------------------------------------------
+Trial 5: Item/Distance/ n/25 Sim Wtg/ 0.3 sim Threshold
+
+Errors for MLK-100k: MSE = 0.05310, MAE = 0.05310, RMSE = 0.23043, len(SE list): 226, 
+using sim_distance with sim_threshold >0.3 and sim_weighting of 226/25
+----------------------------------------------------------------------------------------
+Trial 6: Item/Distance/ n/25 Sim Wtg/ 0.5 sim Threshold
+
+Errors for MLK-100k: MSE = nan, MAE = nan, RMSE = nan, len(SE list): 0, 
+using sim_distance with sim_threshold >0.5 and sim_weighting of 0/25
+----------------------------------------------------------------------------------------
+Trial 7: Item/Distance/ n/50 Sim Wtg/ >0 sim Threshold
+
+Errors for MLK-100k: MSE = 0.70339, MAE = 0.64509, RMSE = 0.83869, len(SE list): 97029, 
+using sim_distance with sim_threshold >0.0 and sim_weighting of 97029/50
+----------------------------------------------------------------------------------------
+Trial 8: Item/Distance/ n/50 Sim Wtg/ 0.3 sim Threshold
+
+Errors for MLK-100k: MSE = nan, MAE = nan, RMSE = nan, len(SE list): 0, 
+using sim_distance with sim_threshold >0.3 and sim_weighting of 0/50
+----------------------------------------------------------------------------------------
+Trial 9: Item/Distance/ n/50 Sim Wtg/ 0.5 sim Threshold
+
+Errors for MLK-100k: MSE = nan, MAE = nan, RMSE = nan, len(SE list): 0, 
+using sim_distance with sim_threshold >0.5 and sim_weighting of 0/50
