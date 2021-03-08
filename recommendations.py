@@ -275,9 +275,10 @@ def sim_distance(prefs, person1, person2, sim_weighting=0):
     distance_sim = 1/(1+sqrt(sum_of_squares))
 
     # apply significance weighting, if any
+
     if sim_weighting != 0:
         if len(si) < sim_weighting:
-                distance_sim *= (len(si) / sim_weighting)
+            distance_sim *= (len(si) / sim_weighting)
     
     return distance_sim
 
@@ -337,9 +338,7 @@ def sim_pearson(prefs, p1, p2, sim_weighting=0):
 
         # apply significance weighting, if any
         if sim_weighting != 0:
-            if len(si) < sim_weighting:
-                sim_pearson *= (len(si) / sim_weighting)
-            
+            sim_pearson *= (len(si) / sim_weighting)
 
         return sim_pearson
     else:
@@ -410,9 +409,6 @@ def getRecommendationSim(prefs, userMatch, user, sim_threshold=0):
            List is sorted, high to low, by predicted rating.
            An empty list is returned when no recommendations have been calc'd.
 
-        #TODO
-        -check accuracy
-
     '''
 
     toRec = set()  # set of items to recommend
@@ -438,6 +434,7 @@ def getRecommendationSim(prefs, userMatch, user, sim_threshold=0):
 
     # Sort the list of tuples by highest to lowest ratings
     recs = sorted(recs, key=lambda x: x[0], reverse=True)
+    print(recs)
 
     return recs
 
@@ -535,7 +532,7 @@ def loo_cv(prefs, metric, sim, algo):
     return error, error_list
 
 
-def topMatches(prefs, person, similarity=sim_pearson, n=5, sim_weighting=0):
+def topMatches(prefs, person, similarity=sim_pearson, n=5, sim_weighting=0, sim_threshold=0):
     '''
         Returns the best matches for person from the prefs dictionary
 
@@ -554,9 +551,15 @@ def topMatches(prefs, person, similarity=sim_pearson, n=5, sim_weighting=0):
            An empty list is returned when no matches have been calc'd.
 
     '''
+    scores = []
+    for other in prefs:
+        score = similarity(prefs, person, other, sim_weighting)
+        if other != person and score > sim_threshold:
+            scores.append((score, other))
 
-    scores = [(similarity(prefs, person, other, sim_weighting), other)
-              for other in prefs if other != person]
+    # scores = [(similarity(prefs, person, other, sim_weighting), other)
+            #   for other in prefs if other != person]
+
     scores.sort()
     scores.reverse()
     return scores[0:n]
@@ -584,7 +587,7 @@ def transformPrefs(prefs):
     return result
 
 
-def calculateSimilarItems(prefs, n=100, similarity=sim_pearson, sim_weighting=0):
+def calculateSimilarItems(prefs, n=100, similarity=sim_pearson, sim_weighting=0, sim_threshold=0):
     '''
         Creates a dictionary of items showing which other items they are most
         similar to.
@@ -615,12 +618,12 @@ def calculateSimilarItems(prefs, n=100, similarity=sim_pearson, sim_weighting=0)
             print(str(percent_complete)+"% complete")
 
         # Find the most similar items to this one
-        scores = topMatches(itemPrefs, item, similarity, n, sim_weighting)
+        scores = topMatches(itemPrefs, item, similarity, n, sim_weighting, sim_threshold)
         result[item] = scores
     return result
 
 
-def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson, sim_weighting=0):
+def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson, sim_weighting=0, sim_threshold=0):
     '''
         Creates a dictionary of users showing which other users they are most
         similar to.
@@ -648,7 +651,7 @@ def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson, sim_weighting=0)
             print(str(percent_complete)+"% complete")
 
         # Find the most similar items to this one
-        scores = topMatches(prefs, user, similarity, n, sim_weighting)
+        scores = topMatches(prefs, user, similarity, n, sim_weighting, sim_threshold)
         result[user] = scores
 
     return result
@@ -685,7 +688,7 @@ def getRecommendedItems(prefs, itemMatch, user, sim_threshold=0):
             # Ignore if this user has already rated this item
             if item2 in userRatings:
                 continue
-            # ignore scores of zero or lower
+            # ignore scores below similarity thresold
             if similarity <= sim_threshold:
                 continue
             # Weighted sum of rating times similarity
@@ -738,7 +741,7 @@ def get_all_II_recs(prefs, itemsim, sim_method, num_users=10, top_N=5):
     return
 
 
-def loo_cv_sim(prefs, sim, algo, sim_matrix, sim_weighting=0, sim_threshold=0):
+def loo_cv_sim(prefs, sim, algo, sim_matrix, sim_threshold=0):
     '''
     Leave-One_Out Evaluation: evaluates recommender system ACCURACY
 
@@ -985,21 +988,8 @@ def main():
                 else:
                     sim = sim_distance
 
-                # prompt for similarity thresold, if any
-                sim_threshold = input(
-                    'Enter similarity threshold: >0, >0.3, >0.5\n')
-                if  '3' in sim_threshold:
-                    sim_threshold = 0.3
-                    print('sim_threshold set to >0.3\n')
-                elif '5' in sim_threshold:
-                    sim_threshold = 0.5
-                    print('sim_threshold set to >0.5\n')
-                else:
-                    sim_threshold = float(sim_threshold)
-                    print('ALERT: invalid option selected, defaulting to >0\n')
-
                 errors, error_lists = loo_cv_sim(
-                    prefs, sim, algo, sim_matrix, sim_threshold)
+                    prefs, sim, algo, sim_matrix, sim_threshold=sim_threshold)
                 print('Errors for %s: MSE = %.5f, MAE = %.5f, RMSE = %.5f, len(SE list): %d, using %s with sim_threshold >%0.1f and sim_weighting of %s'
                       % (prefs_name, errors['mse'], errors['mae'], errors['rmse'], len(error_lists['(r)mse']), sim_method, sim_threshold, str(len(error_lists['(r)mse']))+'/' + str(sim_weighting)))
                 print()
@@ -1012,6 +1002,7 @@ def main():
             print()
             if len(prefs) > 0:
                 ready = False  # subc command in progress
+                
                 sub_cmd = input(
                     'RD(ead) distance or RP(ead) pearson or WD(rite) distance or WP(rite) pearson? ')
                 try:
@@ -1094,6 +1085,19 @@ def main():
                     sim_weighting = int(sim_weighting)
                     print("similarity weighting set to {}".format(sim_weighting))
 
+                # prompt for similarity thresold, if any
+                sim_threshold = input(
+                    'Enter similarity threshold: >0, >0.3, >0.5\n')
+                if  '3' in sim_threshold:
+                    sim_threshold = 0.3
+                    print('sim_threshold set to >0.3\n')
+                elif '5' in sim_threshold:
+                    sim_threshold = 0.5
+                    print('sim_threshold set to >0.5\n')
+                else:
+                    sim_threshold = float(sim_threshold)
+                    print('ALERT: invalid option selected, defaulting to >0\n')
+
                 sub_cmd = input(
                     'RD(ead) distance or RP(ead) pearson or WD(rite) distance or WP(rite) pearson?\n')
                 try:
@@ -1112,7 +1116,7 @@ def main():
                     elif sub_cmd == 'WD' or sub_cmd == 'wd':
                         # transpose the U-I matrix and calc user-user similarities matrix
                         usersim = calculateSimilarUsers(
-                            prefs, similarity=sim_distance)
+                            prefs, similarity=sim_distance, sim_weighting=sim_weighting, sim_threshold=sim_threshold)
                         # Dump/save dictionary to a pickle file
                         pickle.dump(usersim, open(
                             "save_usersim_distance.p", "wb"))
@@ -1121,7 +1125,7 @@ def main():
                     elif sub_cmd == 'WP' or sub_cmd == 'wp':
                         # transpose the U-I matrix and calc user-user similarities matrix
                         usersim = calculateSimilarUsers(
-                            prefs, similarity=sim_pearson)
+                            prefs, similarity=sim_pearson, sim_weighting=sim_weighting, sim_threshold=sim_threshold)
                         # Dump/save dictionary to a pickle file
                         pickle.dump(usersim, open(
                             "save_usersim_pearson.p", "wb"))
