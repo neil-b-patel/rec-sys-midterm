@@ -1003,8 +1003,33 @@ def main():
             if len(prefs) > 0:
                 ready = False  # subc command in progress
                 
+                sim_weighting = input(
+                    'Enter similarity significance weighting n/(sim_weighting): 0 [None], 25, 50\n')
+
+                if int(sim_weighting) != 25 and int(sim_weighting) != 50:
+                    sim_weighting = 0
+                    print(
+                        'ALERT: invalid option or 0 was selected, defaulting to no weighting\n')
+                else:
+                    sim_weighting = int(sim_weighting)
+                    print("similarity weighting set to {}".format(sim_weighting))
+
+                # prompt for similarity thresold, if any
+                sim_threshold = input(
+                    'Enter similarity threshold: >0, >0.3, >0.5\n')
+                if  '3' in sim_threshold:
+                    sim_threshold = 0.3
+                    print('sim_threshold set to >0.3\n')
+                elif '5' in sim_threshold:
+                    sim_threshold = 0.5
+                    print('sim_threshold set to >0.5\n')
+                else:
+                    sim_threshold = float(sim_threshold)
+                    print('ALERT: invalid option selected, defaulting to >0\n')
+
                 sub_cmd = input(
-                    'RD(ead) distance or RP(ead) pearson or WD(rite) distance or WP(rite) pearson? ')
+                    'RD(ead) distance or RP(ead) pearson or WD(rite) distance or WP(rite) pearson?\n')
+               
                 try:
                     if sub_cmd == 'RD' or sub_cmd == 'rd':
                         # Load the dictionary back from the pickle file.
@@ -1021,7 +1046,7 @@ def main():
                     elif sub_cmd == 'WD' or sub_cmd == 'wd':
                         # transpose the U-I matrix and calc item-item similarities matrix
                         itemsim = calculateSimilarItems(
-                            prefs, similarity=sim_distance)
+                            prefs, similarity=sim_distance, sim_weighting=sim_weighting, sim_threshold=sim_threshold)
                         # Dump/save dictionary to a pickle file
                         pickle.dump(itemsim, open(
                             "save_itemsim_distance.p", "wb"))
@@ -1029,8 +1054,9 @@ def main():
 
                     elif sub_cmd == 'WP' or sub_cmd == 'wp':
                         # transpose the U-I matrix and calc item-item similarities matrix
+                       
                         itemsim = calculateSimilarItems(
-                            prefs, similarity=sim_pearson)
+                            prefs, similarity=sim_pearson, sim_weighting=sim_weighting, sim_threshold=sim_threshold)
                         # Dump/save dictionary to a pickle file
                         pickle.dump(itemsim, open(
                             "save_itemsim_pearson.p", "wb"))
