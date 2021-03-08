@@ -797,8 +797,8 @@ def loo_cv_sim(prefs, sim, algo, sim_matrix, sim_weighting=0, sim_threshold=0):
     errors['mae'] = np.average(mae_list)
     errors['rmse'] = sqrt(np.average(mse_list))
 
-    error_lists['(r)mse'] = error_mse
-    error_lists['mae'] = error_mae
+    error_lists['(r)mse'] = mse_list
+    error_lists['mae'] = mae_list
 
     return errors, error_lists
 
@@ -998,7 +998,7 @@ def main():
                 errors, error_lists = loo_cv_sim(
                     prefs, sim, algo, sim_matrix, sim_threshold)
                 print('Errors for %s: MSE = %.5f, MAE = %.5f, RMSE = %.5f, len(SE list): %d, using %s with sim_threshold >%0.1f and sim_weighting of %s'
-                      % (prefs_name, errors['mse'], errors['mae'], errors['rmse'], len(error_lists['(r)mse'][0]), sim_method, sim_threshold, str(len(error_lists['(r)mse']+'/' + sim_weighting))))
+                      % (prefs_name, errors['mse'], errors['mae'], errors['rmse'], len(error_lists['(r)mse']), sim_method, sim_threshold, str(len(error_lists['(r)mse']))+'/' + str(sim_weighting)))
                 print()
 
             else:
