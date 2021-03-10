@@ -178,6 +178,7 @@ def popular_items(prefs, filename, n=20):
     TAB = 25
     CENTER = 40
     MAX_RESULTS = 5
+    best_rated_results = 20
 
     # create a dictionary of ratings (all users, all items)
     for user in prefs:
@@ -224,7 +225,7 @@ def popular_items(prefs, filename, n=20):
         counter += 1
         print(item.ljust(CENTER) +
               str(ratings[item][1]).ljust(TAB) + str(ratings[item][0]).ljust(TAB))
-        if counter == MAX_RESULTS:
+        if counter == best_rated_results:
             break
     print()
 
