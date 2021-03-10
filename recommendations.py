@@ -2,20 +2,18 @@
 CSC381: Building a simple Recommender System
 
 The final code package is a collaborative programming effort between the
-CSC381 student(s) named below, the class instructor (Carlos Seminario), and
-source code from Programming Collective Intelligence, Segaran 2007.
+CSC381 student(s) named below, the class instructor (Carlos Seminario), 
+and source code from Programming Collective Intelligence, Segaran 2007.
 This code is for academic use/purposes only.
 
-CSC381 Programmer/Researcher: Neil Patel
+CSC381 Programmers/Researchers: Sam Davis ('22), Luna Jerjees ('23),
+                                Neil Patel ('22), Michael Zemanek ('23)
 
 '''
 from matplotlib import pyplot as plt
+import copy, math, os, pickle
 from math import sqrt
 import numpy as np
-import os
-import copy
-import math
-import pickle
 
 
 def from_file_to_dict(path, datafile, itemfile):
@@ -157,8 +155,7 @@ def popular_items(prefs, filename, n=20):
     ''' Computes/prints popular items analytics
         -- popular items: most rated (sorted by # ratings)
         -- popular items: highest rated (sorted by avg rating)
-        -- popular items: highest rated items that have at least a
-                          "threshold" number of ratings
+        -- popular items: highest rated items that have at least n number of ratings
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
@@ -200,7 +197,7 @@ def popular_items(prefs, filename, n=20):
     highest_rated = sorted(ratings, key=lambda x: (
         ratings[x][1], ratings[x][0]), reverse=True)
 
-   # counter is used in following print statements to limit to 5 items
+    # counter is used in following print statements to limit to 5 items
 
     # prints items in order of descending number of ratings
     print('Popular items -- most rated: '.ljust(CENTER))
@@ -246,16 +243,15 @@ def popular_items(prefs, filename, n=20):
     return
 
 
-def sim_distance(prefs, person1, person2, sim_weighting=0):
-    '''
-        Calculate Euclidean distance similarity
+def sim_distance(prefs, p1, p2, sim_weighting=0):
+    ''' Calculate Euclidean distance similarity
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
-        -- person1: string containing name of user 1
-        -- person2: string containing name of user 2
-        -- sim_weighting: similarity significance weighting factor (0, 25, 50), 
-                            default is 0 [None]
+        -- p1: string containing name of user 1
+        -- p2: string containing name of user 2
+        -- sim_weighting: similarity significance weighting factor (0, 25, 50)
+                          [default is 0, which represents No Weighting]
 
         Returns:
         -- Euclidean distance similarity as a float
@@ -264,8 +260,8 @@ def sim_distance(prefs, person1, person2, sim_weighting=0):
 
     # Get the list of shared_items
     si = {}
-    for item in prefs[person1]:
-        if item in prefs[person2]:
+    for item in prefs[p1]:
+        if item in prefs[p2]:
             si[item] = 1
 
     # if they have no ratings in common, return 0
@@ -273,8 +269,8 @@ def sim_distance(prefs, person1, person2, sim_weighting=0):
         return 0
 
     # Add up the squares of all the differences
-    sum_of_squares = sum([pow(prefs[person1][item]-prefs[person2][item], 2)
-                          for item in prefs[person1] if item in prefs[person2]])
+    sum_of_squares = sum([pow(prefs[p1][item]-prefs[p2][item], 2)
+                          for item in prefs[p1] if item in prefs[p2]])
 
     distance_sim = 1/(1+sqrt(sum_of_squares))
 
@@ -288,16 +284,14 @@ def sim_distance(prefs, person1, person2, sim_weighting=0):
 
 
 def sim_pearson(prefs, p1, p2, sim_weighting=0):
-    '''
-        Calculate Pearson Correlation similarity
+    ''' Calculate Pearson Correlation similarity
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
-        -- person1: string containing name of user 1
-        -- person2: string containing name of user 2
-        -- sim_weighting: similarity significance weighting factor (0, 25, 50), 
-                            default is 0 [None]
-
+        -- p1: string containing name of user 1
+        -- p2: string containing name of user 2
+        -- sim_weighting: similarity significance weighting factor (0, 25, 50) 
+                          [default is 0, which represents No Weighting]
 
         Returns:
         -- Pearson Correlation similarity as a float
@@ -313,9 +307,6 @@ def sim_pearson(prefs, p1, p2, sim_weighting=0):
     # if they have no ratings in common, return 0
     if len(si) == 0:
         return 0
-
-    # sum_of_squares=sum([pow(prefs[person1][item]-prefs[person2][item],2)
-        # for item in prefs[person1] if item in prefs[person2]])
 
     # calc avg rating for p1 and p2, using only shared ratings
     x_avg = 0
@@ -350,13 +341,12 @@ def sim_pearson(prefs, p1, p2, sim_weighting=0):
 
 
 def getRecommendations(prefs, person, similarity=sim_pearson):
-    '''
-        Calculates recommendations for a given user
+    ''' Calculates recommendations for a given user
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
         -- person: string containing name of user
-        -- similarity: function to calc similarity (sim_pearson is default)
+        -- similarity: function to calc similarity [sim_pearson is default]
 
         Returns:
         -- A list of recommended items with 0 or more tuples,
@@ -398,14 +388,14 @@ def getRecommendations(prefs, person, similarity=sim_pearson):
 
 
 def getRecommendationSim(prefs, userMatch, user, sim_threshold=0):
-    '''
-        Returns user-based recommendations
+    ''' Returns user-based recommendations
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
         -- userMatch: dictionary containing similarity matrix
         -- user: string containing name of user
-        -- sim_threshold: minimum similarity to be considered a neighbor, default is >0
+        -- sim_threshold: minimum similarity to be considered a neighbor
+                          [default is >0]
 
         Returns:
         -- A list of recommended items with 0 or more tuples,
@@ -444,14 +434,12 @@ def getRecommendationSim(prefs, userMatch, user, sim_threshold=0):
 
 
 def calc_all_users(prefs, method=sim_distance):
-    '''
-        Prints selected calculation for all users
+    ''' Prints selected calculation for all users
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
-        -- method: function to calc for all users
-                    (sim_distance is default, but sim_pearson
-                     and getRecommendations are also valid)
+        -- method: sim_distance, sim_pearson, or getRecommendations
+                   [sim_distance is default]
 
         Returns:
         -- None
@@ -481,8 +469,7 @@ def calc_all_users(prefs, method=sim_distance):
 
 
 def loo_cv(prefs, metric, sim, algo):
-    '''
-        Leave_One_Out Evaluation: evaluates recommender system ACCURACY
+    ''' Leave_One_Out Evaluation: evaluates recommender system ACCURACY
 
         Parameters:
         -- prefs: dataset of critics, ml-100K, etc.
@@ -498,20 +485,28 @@ def loo_cv(prefs, metric, sim, algo):
 
     error = 0
     error_list = []
-    pred_found = False
     recs = []
+
+    ### UNCOMMENT FOR DEBUG PRINTS ###
+    # pred_found = False 
 
     # Create a temp copy of prefs
     prefs_cp = copy.deepcopy(prefs)
 
+    # iterate through all ratings
     for user in prefs:
         for item in prefs[user]:
+            # remove a rating
             removed_rating = prefs_cp[user].pop(item)
+            # get list of recommendations
             recs = algo(prefs_cp, user, similarity=sim)
-            print(recs)
+
+            # iterate through recommendations
             for rec in recs:
+                # if this item is in the recommendations, calculate error
                 if item in rec:
-                    pred_found = True
+                    ### UNCOMMENT FOR DEBUG PRINTS ###
+                    # pred_found = True
                     predicted_rating = rec[0]
                     error_i = 0
                     if metric == "MAE" or metric == "mae":
@@ -519,15 +514,20 @@ def loo_cv(prefs, metric, sim, algo):
                     else:
                         error_i = (predicted_rating - removed_rating)**2
                     error_list.append(error_i)
+
+            ### UNCOMMENT FOR DEBUG PRINTS [use w/ small datasets or implement a way to limit these] ###
                     # print('User : {}, Item: {}, Prediction {}, Actual: {}, Error: {}'.format(
                     #     user, item, predicted_rating, removed_rating, error_i))
-            if pred_found == False:
+            # if pred_found == False:
                 # print('From loo_cv(), No prediction calculated for item {}, user {} in pred_list: {}'.format(
                 #     item, user, recs))
-                pass
-            pred_found = False
+                # pass
+            #pred_found = False
+            
+            # add the previously removed rating back
             prefs_cp[user][item] = removed_rating
 
+    # average all errors (if RMSE, square root the average)
     if metric == "RMSE" or metric == "rmse":
         error = sqrt(np.average(error_list))
     else:
@@ -537,16 +537,15 @@ def loo_cv(prefs, metric, sim, algo):
 
 
 def topMatches(prefs, person, similarity=sim_pearson, n=5, sim_weighting=0, sim_threshold=0):
-    '''
-        Returns the best matches for person from the prefs dictionary
+    ''' Returns the best matches for person from the prefs dictionary
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
         -- person: string containing name of user
-        -- similarity: function to calc similarity (sim_pearson is default)
-        -- n: number of matches to find/return (5 is default)
-        -- sim_weighting: similarity significance weighting factor (0, 25, 50), 
-                            default is 0 [None]
+        -- similarity: function to calc similarity [sim_pearson is default]
+        -- n: number of matches to find/return [5 is default]
+        -- sim_weighting: similarity significance weighting factor (0, 25, 50) 
+                          [default is 0, which represents No Weighting]
 
         Returns:
         -- A list of similar matches with 0 or more tuples,
@@ -556,13 +555,14 @@ def topMatches(prefs, person, similarity=sim_pearson, n=5, sim_weighting=0, sim_
 
     '''
     scores = []
+
+    # iterate through users in prefs
     for other in prefs:
+        # calculate similarity score
         score = similarity(prefs, person, other, sim_weighting)
+        # don't compare me to myself, accept scores above the threshold
         if other != person and score > sim_threshold:
             scores.append((score, other))
-
-    # scores = [(similarity(prefs, person, other, sim_weighting), other)
-            #   for other in prefs if other != person]
 
     scores.sort()
     scores.reverse()
@@ -570,8 +570,7 @@ def topMatches(prefs, person, similarity=sim_pearson, n=5, sim_weighting=0, sim_
 
 
 def transformPrefs(prefs):
-    '''
-        Transposes U-I matrix (prefs dictionary)
+    ''' Transposes U-I matrix (prefs dictionary)
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
@@ -583,17 +582,18 @@ def transformPrefs(prefs):
     '''
 
     result = {}
+
     for person in prefs:
         for item in prefs[person]:
             result.setdefault(item, {})
             # Flip item and person
             result[item][person] = prefs[person][item]
+    
     return result
 
 
 def calculateSimilarItems(prefs, n=100, similarity=sim_pearson, sim_weighting=0, sim_threshold=0):
-    '''
-        Creates a dictionary of items showing which other items they are most
+    ''' Creates a dictionary of items showing which other items they are most
         similar to.
 
         Parameters:
@@ -629,8 +629,7 @@ def calculateSimilarItems(prefs, n=100, similarity=sim_pearson, sim_weighting=0,
 
 
 def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson, sim_weighting=0, sim_threshold=0):
-    '''
-        Creates a dictionary of users showing which other users they are most
+    ''' Creates a dictionary of users showing which other users they are most
         similar to.
 
         Parameters:
@@ -664,15 +663,13 @@ def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson, sim_weighting=0,
 
 
 def getRecommendedItems(prefs, itemMatch, user, sim_threshold=0):
-    '''
-        Calculates recommendations for a given user
+    ''' Calculates recommendations for a given user
 
         Parameters:
         -- prefs: dictionary containing user-item matrix
         -- itemMatch: dictionary containing similarity matrix
         -- user: string containing name of user
         -- sim_threshold: minimum similarity to be considered a neighbor, default is >0
-
 
         Returns:
         -- A list of recommended items with 0 or more tuples,
@@ -685,27 +682,29 @@ def getRecommendedItems(prefs, itemMatch, user, sim_threshold=0):
     userRatings = prefs[user]
     scores = {}
     totalSim = {}
+
     # Loop over items rated by this user
     for (item, rating) in userRatings.items():
-
+      
       # Loop over items similar to this one
         for (similarity, item2) in itemMatch[item]:
-
+      
             # Ignore if this user has already rated this item
             if item2 in userRatings:
                 continue
             # ignore scores below similarity thresold
             if similarity <= sim_threshold:
                 continue
+
             # Weighted sum of rating times similarity
             scores.setdefault(item2, 0)
             scores[item2] += similarity*rating
+
             # Sum of all the similarities
             totalSim.setdefault(item2, 0)
             totalSim[item2] += similarity
 
     # Divide each total score by total weighting to get an average
-
     rankings = [(score/totalSim[item], item) for item, score in scores.items()]
 
     # Return the rankings from highest to lowest
@@ -715,8 +714,7 @@ def getRecommendedItems(prefs, itemMatch, user, sim_threshold=0):
 
 
 def get_all_II_recs(prefs, itemsim, sim_method, num_users=10, top_N=5):
-    '''
-        Print item-based CF recommendations for all users in dataset
+    ''' Print item-based CF recommendations for all users in dataset
 
         Parameters
         -- prefs: U-I matrix (nested dictionary)
@@ -748,16 +746,14 @@ def get_all_II_recs(prefs, itemsim, sim_method, num_users=10, top_N=5):
 
 
 def loo_cv_sim(prefs, sim, algo, sim_matrix, sim_threshold=0):
-    '''
-    Leave-One_Out Evaluation: evaluates recommender system ACCURACY
+    ''' Leave-One_Out Evaluation: evaluates recommender system ACCURACY
 
      Parameters:
          -- prefs dataset: critics, MLK-100k
          -- sim: distance, pearson
          -- algo: user-based (getRecommendationSim), item-based recommender (getRecommendedItems)
          -- sim_matrix: pre-computed similarity matrix
-         -- sim_weighting: similarity significance weighting factor (0, 25, 50), default is 0 [None]
-         -- sim_threshold: minimum similarity to be considered a neighbor, default is >0
+         -- sim_threshold: minimum similarity to be considered a neighbor [default is >0]
 
     Returns:
          -- errors: MSE, MAE, RMSE totals for this set of conditions
@@ -769,42 +765,56 @@ def loo_cv_sim(prefs, sim, algo, sim_matrix, sim_threshold=0):
     error_lists = {}
     mse_list = []
     mae_list = []
-
-    pred_found = False
     recs = []
-
     c = 0
 
-    # Create a temp copy of prefs
+    ### UNCOMMENT FOR DEBUG PRINTS ###
+    # pred_found = False
+
+
+    # create a temp copy of prefs
     prefs_cp = copy.deepcopy(prefs)
 
+    # iterate through all users
     for user in prefs:
-        # Progress status
+        # progress status
         c += 1
         if c % 25 == 0:
             percent_complete = (100*c)/len(prefs)
             print("%.2f %% complete" % percent_complete)
 
+        # iterate through user's ratings
         for item in prefs[user]:
+            # remove a rating
             removed_rating = prefs_cp[user].pop(item)
+            # get list of recommendations   
             recs = algo(prefs_cp, sim_matrix, user, sim_threshold)
+            
+            # iterate through recommendations
             for rec in recs:
+                # if this item is in the recommendations, calculate error
                 if item in rec:
-                    pred_found = True
+                    ### UNCOMMENT FOR DEBUG PRINTS ###
+                    # pred_found = True
                     predicted_rating = rec[0]
                     error_mse = (predicted_rating - removed_rating)**2
                     error_mae = abs(predicted_rating - removed_rating)
                     mse_list.append(error_mse)
                     mae_list.append(error_mae)
+
+            ### UNCOMMENT FOR DEBUG PRINTS [use w/ small datasets or implement a way to limit these] ###
                     # print('User : {}, Item: {}, Prediction {}, Actual: {}, Error: {}, Absolute Error: {}'.format(
                     # user, item, predicted_rating, removed_rating, error_mse, error_mae))
-            if pred_found == False:
+            # if pred_found == False:
                 # print('From loo_cv(), No prediction calculated for item {}, user {} in pred_list: {}'.format(
                 # item, user, recs))
-                pass
-            pred_found = False
+                # pass
+            # pred_found = False
+
+            # add the previously removed rating back
             prefs_cp[user][item] = removed_rating
 
+    # average all errors (RMSE => square root the average)
     errors['mse'] = np.average(mse_list)
     errors['mae'] = np.average(mae_list)
     errors['rmse'] = sqrt(np.average(mse_list))
@@ -839,11 +849,12 @@ def main():
                         'D(istance) critics data?, \n'
                         'PC(earson Correlation) critics data? \n'
                         'U(ser-based CF Recommendations)? \n'
+                        'I(tem-based CF Recommendations)? \n'
                         'LCV(eave one out cross-validation)? \n'
                         'LCVSIM(eave one out cross-validation)? \n'
                         'Sim(ilarity matrix) calc? \n'
                         'Simu(user-user sim matrix)? \n'
-                        'I(tem-based CF Recommendations)? \n')
+                        )
 
         if file_io == 'R' or file_io == 'r':
             # read in u-i matrix data
@@ -962,7 +973,6 @@ def main():
                     error, len(error_list)))
 
                 # ---- END User-User LOOCV ----
-
                 print()
 
             else:
@@ -972,6 +982,8 @@ def main():
             print()
 
             sim_matrix = {}
+
+            # prompt for algorithm choice
             algo = input('Enter algorithm: U(ser-based) or I(tem-based)')
             if algo == 'I' or algo == 'i':
                 algo = getRecommendedItems
@@ -1009,16 +1021,16 @@ def main():
             if len(prefs) > 0:
                 ready = False  # subc command in progress
 
+                # prompt for a similarity significance weighting (None, n/25, n/50)
                 sim_weighting = input(
                     'Enter similarity significance weighting n/(sim_weighting): 0 [None], 25, 50\n')
-
                 if int(sim_weighting) != 25 and int(sim_weighting) != 50:
                     sim_weighting = 0
                     print(
-                        'ALERT: invalid option or 0 was selected, defaulting to no weighting\n')
+                        'ALERT: invalid option or 0 was selected [defaulting to No Weighting]\n')
                 else:
                     sim_weighting = int(sim_weighting)
-                    print("similarity weighting set to {}".format(sim_weighting))
+                    print("similarity weighting set to {}\n".format(sim_weighting))
 
                 # prompt for similarity thresold, if any
                 sim_threshold = input(
@@ -1060,7 +1072,6 @@ def main():
 
                     elif sub_cmd == 'WP' or sub_cmd == 'wp':
                         # transpose the U-I matrix and calc item-item similarities matrix
-
                         itemsim = calculateSimilarItems(
                             prefs, similarity=sim_pearson, sim_weighting=sim_weighting, sim_threshold=sim_threshold)
                         # Dump/save dictionary to a pickle file
@@ -1088,15 +1099,6 @@ def main():
                     for item in itemsim:
                         print('{} : {}'.format(item, itemsim[item]))
 
-                    # EUCLIDEAN RESULTS
-                    # Lady in the Water is most similar to You, Me and Dupree (0.45)
-                    # Snakes on a Plane is least similar to You, Me and Dupree (0.19)
-
-                    # PEARSON RESULTS
-                    # Lady in the Water is most similar to Snake on a Plane (0.76)
-                    # Superman Returns is least similar to Snakes on a Plane (0.11)
-                    # Lady in the Water is the most inversely similar to Just My Luck (-0.94)
-
             else:
                 print('Empty dictionary, R(ead) in some data!')
 
@@ -1108,7 +1110,6 @@ def main():
                 # prompt for similarity significance weighting, if any
                 sim_weighting = input(
                     'Enter similarity significance weighting n/(sim_weighting): 0 [None], 25, 50\n')
-
                 if int(sim_weighting) != 25 and int(sim_weighting) != 50:
                     sim_weighting = 0
                     print(
@@ -1189,11 +1190,9 @@ def main():
         elif file_io == 'I' or file_io == 'i':
             print()
             if len(prefs) > 0 and len(itemsim) > 0:
-                print('Item-based CF recommendations for all users:')
                 # Calc Item-based CF recommendations for all users
-
+                print('Item-based CF recommendations for all users:')
                 get_all_II_recs(prefs, itemsim, sim_method)
-
                 print()
 
             else:
