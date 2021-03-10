@@ -153,7 +153,7 @@ def data_stats(prefs, filename):
     return
 
 
-def popular_items(prefs, filename):
+def popular_items(prefs, filename, n=20):
     ''' Computes/prints popular items analytics
         -- popular items: most rated (sorted by # ratings)
         -- popular items: highest rated (sorted by avg rating)
@@ -171,10 +171,13 @@ def popular_items(prefs, filename):
 
     ratings = {}
     most_rated = {}
+    num_ratings = {}
     highest_rated = {}
     highest_rated_min5 = {}
-    num_ratings = {}
     mean_item_ratings = {}
+    TAB = 25
+    CENTER = 40
+    MAX_RESULTS = 5
 
     # create a dictionary of ratings (all users, all items)
     for user in prefs:
@@ -200,42 +203,43 @@ def popular_items(prefs, filename):
    # counter is used in following print statements to limit to 5 items
 
     # prints items in order of descending number of ratings
-    print('Popular items -- most rated: ')
-    print('Title'.ljust(30) + '#Ratings'.ljust(15) + 'Avg Rating'.ljust(15))
+    print('Popular items -- most rated: '.ljust(CENTER))
+    print('Title'.ljust(CENTER) + '#Ratings'.ljust(TAB) + 'Avg Rating'.ljust(TAB))
 
     counter = 0
     for item in most_rated:
         counter += 1
-        print(item.ljust(30) +
-              str(ratings[item][0]).ljust(15) + str(ratings[item][1]).ljust(15))
-        if counter == 5:
+        print(item.ljust(CENTER) +
+              str(ratings[item][0]).ljust(TAB) + str(ratings[item][1]).ljust(TAB))
+        if counter == MAX_RESULTS:
             break
     print()
 
     # prints items in order of descending average rating
     print('Popular items -- highest rated: ')
-    print('Title'.ljust(30) + 'Avg Rating'.ljust(15) + '#Ratings'.ljust(15))
+    print('Title'.ljust(CENTER) + 'Avg Rating'.ljust(TAB) + '#Ratings'.ljust(TAB))
 
     counter = 0
     for item in highest_rated:
         counter += 1
-        print(item.ljust(30) +
-              str(ratings[item][1]).ljust(15) + str(ratings[item][0]).ljust(15))
-        if counter == 5:
+        print(item.ljust(CENTER) +
+              str(ratings[item][1]).ljust(TAB) + str(ratings[item][0]).ljust(TAB))
+        if counter == MAX_RESULTS:
             break
     print()
 
     # prints items with at least 5 ratings in order of descending average rating
-    print('Overall best rated items (number of ratings >= 5): ')
-    print('Title'.ljust(30) + 'Avg Rating'.ljust(15) + '#Ratings'.ljust(15))
+    print('Overall best rated items (number of ratings >={}): '.format(n))
+    print('Title'.ljust(CENTER) + 'Avg Rating'.ljust(TAB) + '#Ratings'.ljust(TAB))
 
     counter = 0
     for item in highest_rated:
-        counter += 1
-        if ratings[item][0] >= 5:
-            print(item.ljust(
-                30) + str(ratings[item][1]).ljust(15) + str(ratings[item][0]).ljust(15))
-        if counter == 5:
+        if num_ratings[item] >= n:
+            counter += 1
+            print(item.ljust(CENTER) + 
+                    str(ratings[item][1]).ljust(TAB) + 
+                    str(ratings[item][0]).ljust(TAB))
+        if counter == MAX_RESULTS:
             break
     print()
 
@@ -279,7 +283,7 @@ def sim_distance(prefs, person1, person2, sim_weighting=0):
     if sim_weighting != 0:
         if len(si) < sim_weighting:
             distance_sim *= (len(si) / sim_weighting)
-    
+
     return distance_sim
 
 
@@ -618,7 +622,8 @@ def calculateSimilarItems(prefs, n=100, similarity=sim_pearson, sim_weighting=0,
             print(str(percent_complete)+"% complete")
 
         # Find the most similar items to this one
-        scores = topMatches(itemPrefs, item, similarity, n, sim_weighting, sim_threshold)
+        scores = topMatches(itemPrefs, item, similarity, n,
+                            sim_weighting, sim_threshold)
         result[item] = scores
     return result
 
@@ -651,7 +656,8 @@ def calculateSimilarUsers(prefs, n=100, similarity=sim_pearson, sim_weighting=0,
             print(str(percent_complete)+"% complete")
 
         # Find the most similar items to this one
-        scores = topMatches(prefs, user, similarity, n, sim_weighting, sim_threshold)
+        scores = topMatches(prefs, user, similarity, n,
+                            sim_weighting, sim_threshold)
         result[user] = scores
 
     return result
@@ -1002,7 +1008,7 @@ def main():
             print()
             if len(prefs) > 0:
                 ready = False  # subc command in progress
-                
+
                 sim_weighting = input(
                     'Enter similarity significance weighting n/(sim_weighting): 0 [None], 25, 50\n')
 
@@ -1017,7 +1023,7 @@ def main():
                 # prompt for similarity thresold, if any
                 sim_threshold = input(
                     'Enter similarity threshold: >0, >0.3, >0.5\n')
-                if  '3' in sim_threshold:
+                if '3' in sim_threshold:
                     sim_threshold = 0.3
                     print('sim_threshold set to >0.3\n')
                 elif '5' in sim_threshold:
@@ -1029,7 +1035,7 @@ def main():
 
                 sub_cmd = input(
                     'RD(ead) distance or RP(ead) pearson or WD(rite) distance or WP(rite) pearson?\n')
-               
+
                 try:
                     if sub_cmd == 'RD' or sub_cmd == 'rd':
                         # Load the dictionary back from the pickle file.
@@ -1054,7 +1060,7 @@ def main():
 
                     elif sub_cmd == 'WP' or sub_cmd == 'wp':
                         # transpose the U-I matrix and calc item-item similarities matrix
-                       
+
                         itemsim = calculateSimilarItems(
                             prefs, similarity=sim_pearson, sim_weighting=sim_weighting, sim_threshold=sim_threshold)
                         # Dump/save dictionary to a pickle file
@@ -1114,7 +1120,7 @@ def main():
                 # prompt for similarity thresold, if any
                 sim_threshold = input(
                     'Enter similarity threshold: >0, >0.3, >0.5\n')
-                if  '3' in sim_threshold:
+                if '3' in sim_threshold:
                     sim_threshold = 0.3
                     print('sim_threshold set to >0.3\n')
                 elif '5' in sim_threshold:
