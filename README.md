@@ -56,7 +56,8 @@ The computed accuracy metrics are MSE (Mean Square Error), MAE (Mean AbsoluteErr
   
   (0 = NONE, 25 = n/25, 50 = n/50); where n is the number of shared items between two users
 
-6. Select a minimum similarity thrsehold: >0, >0.3, >0.5
+6. Select a minimum similarity threshold: >0, >0.3, >0.5
+   (Enter either 0.3 or 3, 0.5 or 5)
 
 7. Select a subcommand: RD, RP, WD, WP 
 
