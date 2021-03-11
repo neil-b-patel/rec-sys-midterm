@@ -7,7 +7,7 @@
 - Michael Zemanek '23
 
 ## Introduction
-Hello! We are a group students/researchers at Davidson College.
+Hello! We are a group of students/researchers at Davidson College.
 
 This was the result of a midterm project for the Recommender Systems Research course.
 
@@ -42,25 +42,27 @@ The computed accuracy metrics are MSE (Mean Square Error), MAE (Mean AbsoluteErr
 ## How to Use
 1. Clone the GitHub Repo @ https://github.com/nepatel/rec-sys-midterm.git
 
-2. Run 'recommendations.py' (NOTE: Directory path variable may need to be adjusted)\
+2. Run 'recommendations.py' (NOTE: Directory path variable may need to be adjusted)
 
 3. Read in a dataset with: R or RML 
 
-  (R = critics, RML = MLK-100)
+  => (R = critics, RML = MLK-100)
 
 4. Generate a similarity matrix with: Sim or Simu 
 
-  (Sim = Item-Based, Simu = User-Based)
+  => (Sim = Item-Based, Simu = User-Based)
 
 5. Select a signicance similarity weighting: 0, 25, 50
   
-  (0 = NONE, 25 = n/25, 50 = n/50); where n is the number of shared items between two users
+  => (0 = NONE, 25 = n/25, 50 = n/50); where n is the number of shared items between two users
 
-6. Select a minimum similarity thrsehold: >0, >0.3, >0.5
+6. Select a minimum similarity threshold: >0, >0.3, >0.5
+   
+  => (0.3 or 3 = >0.3, 0.5 or 5 = >0.5, otherwise default to >0)
 
 7. Select a subcommand: RD, RP, WD, WP 
 
-  (R = Read, W = Write, D = Euclidean Distance, P = Pearson Correlation)
+  => (R = Read, W = Write, D = Euclidean Distance, P = Pearson Correlation)
 
 8. Test metrics of accuracy with: LCVSIM (NOTE: LCV is deprecated)
 
