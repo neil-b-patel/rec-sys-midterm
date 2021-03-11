@@ -42,7 +42,7 @@ The computed accuracy metrics are MSE (Mean Square Error), MAE (Mean AbsoluteErr
 ## How to Use
 1. Clone the GitHub Repo @ https://github.com/nepatel/rec-sys-midterm.git
 
-2. Run 'recommendations.py' (NOTE: Directory path variable may need to be adjusted)\
+2. Run 'recommendations.py' (NOTE: Directory path variable may need to be adjusted)
 
 3. Read in a dataset with: R or RML 
 
@@ -57,7 +57,8 @@ The computed accuracy metrics are MSE (Mean Square Error), MAE (Mean AbsoluteErr
   (0 = NONE, 25 = n/25, 50 = n/50); where n is the number of shared items between two users
 
 6. Select a minimum similarity threshold: >0, >0.3, >0.5
-   (Enter either 0.3 or 3, 0.5 or 5)
+   
+   (0.3 or 3 = >0.3, 0.5 or 5 = >0.5, otherwise default to >0)
 
 7. Select a subcommand: RD, RP, WD, WP 
 
