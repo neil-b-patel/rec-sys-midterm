@@ -429,8 +429,7 @@ def getRecommendationSim(prefs, userMatch, user, sim_threshold=0):
 
     # Sort the list of tuples by highest to lowest ratings
     recs = sorted(recs, key=lambda x: x[0], reverse=True)
-    print(recs)
-
+    
     return recs
 
 
