@@ -7,7 +7,7 @@
 - Michael Zemanek '23
 
 ## Introduction
-Hello! We are a group students/researchers at Davidson College.
+Hello! We are a group of students/researchers at Davidson College.
 
 This was the result of a midterm project for the Recommender Systems Research course.
 
